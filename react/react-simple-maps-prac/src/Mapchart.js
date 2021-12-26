@@ -9,65 +9,51 @@ import chroma from "chroma-js";
 import { Spring, config } from "react-spring";
 import { geoCentroid } from "d3-geo";
 
-import test from "./test";
+// load seoul topojson
+import SeoulMap from "./seoul";
 const lodash = require("lodash");
 
-console.log(test)
-const defaultMap = lodash.cloneDeep(test)
-
-console.log(defaultMap)
-/*
-const getRandomInt = (min, max) =>
-  Math.floor(Math.random() * (max - min + 1) + min);
-
-const colorScale = chroma.brewer.Oranges.slice(1);
-const colors = Array(180)
-
-  .fill()
-  .map(d => colorScale[getRandomInt(0, colorScale.length - 1)]);
-*/
-function deepCopy(obj) {
-  if (obj === null || typeof obj !== "object") {
-    return obj;
-  }
-
-  let copy = {};
-  for (let key in obj) {
-    copy[key] = deepCopy(obj[key]);
-  }
-  return copy;
-}
+const mapWidth =600;
+const mapHeight=300;
+const defaultMap = lodash.cloneDeep(SeoulMap)
+const MAX_ZOOM = 5
+// https://gka.github.io/chroma.js/ 참고
 const scl = chroma
-  .scale(["#02343F", "#F0EDCC"])  //choose specific color here
-  .mode("lch")
-  .colors(8);
+  .scale(["#02343F", "#F0EDCC"])  //지도 색깔 바꾸는 곳 [시작색, 마지막색]
+  .mode("lch") // 컬러 생성 모드
+  .colors(8); //8가지 컬러
 
-const DEFAULT_COORDINATION = [126.98820917938465,37.55105648528907]
+const DEFAULT_COORDINATION = [126.98820917938465,37.55105648528907] //맨 처음 지도가 렌더링 됐을때 센터 값
 
 const MapChart = ({ setTooltipContent }) => { 
-    const [map, setMap] = useState(test)
-    const [geoMap, setGeoMap] = useState('0');
+    //
+    const [map, setMap] = useState(SeoulMap)
+    // 줌 상태인지 check
+    const [isZoom, setIsZoom] = useState(false); 
+    // FIXME: 현재 작동 안됨.
     const [zoomLevel, setZoomLevel] = useState(1) 
-    const [springZoomLevel, setSpringZoomLevel] = useState(1) 
+    // 지도 중심 좌표
     const [center, setCenter] = useState(DEFAULT_COORDINATION);
     return (
       <div className="jido">
 
         <Spring
             from={{ zoom: 1 }}
-            to={{ zoom: {springZoomLevel} }}
+            to={{ zoom: zoomLevel }}
             config={config.slow}
         >
-            {styles =>(
+            {(styles) =>(
             <ComposableMap  
-            width={800}
-            height={300}
+            width={mapWidth}
+            height={mapHeight}
                 projection="geoMercator"
-                projectionConfig={{rotate: [-60, 0, 5], scale: 35000, }}
-                style={{ width: "100%", height: "auto" }}
+                projectionConfig={{rotate: [-60, 0, 5], scale: 35000, }} 
                 data-tip=""
             >
-              <ZoomableGroup center={center} zoom={zoomLevel}>
+              <ZoomableGroup 
+                  center={center} 
+                  zoom={styles.zoom}
+              >
                 <Geographies geography={map}>
                   {({ geographies }) =>
                     geographies.map((geo, i) => {
@@ -87,7 +73,6 @@ const MapChart = ({ setTooltipContent }) => {
                                 }
                             }}
                             onMouseEnter={() => {
-                                console.log(geoMap)
                                 const { name, code } = geo.properties;
                                 setTooltipContent(`${name} : ${code}`);
                             }}
@@ -95,12 +80,9 @@ const MapChart = ({ setTooltipContent }) => {
                                 setTooltipContent("");
                             }}
                             onClick={() => {
-                                if(geoMap === '0'){
-                                  
-                                  console.log(defaultMap)
-                                    const copyObj = lodash.cloneDeep(test)
-                                    // copyObj.objects.seoul_municipalities_geo.geometries={}
-
+                                if(!isZoom){ 
+                                    // FIXME: 깊은복사 문제 ( 질문 해야 함 )
+                                    const copyObj = lodash.cloneDeep(SeoulMap)
                                     const target = copyObj.objects.seoul_municipalities_geo.geometries.filter(x=>{ 
                                         return x.properties.code===geo.properties.code
                                     })
@@ -109,22 +91,14 @@ const MapChart = ({ setTooltipContent }) => {
                                     const centroid = geoCentroid(geo);
                                     setMap(copyObj)
                                     setCenter(centroid)
-                                    console.log(centroid)
-                                    // alert(`현재 유저가 클릭한 구:` + geo.properties.name);
-                                    setGeoMap(geo.properties.name);
-                                    setZoomLevel(4);
-                                    setSpringZoomLevel(60);
-                                    console.log(geoMap)
+                                    setIsZoom(!isZoom); 
+                                    setZoomLevel(MAX_ZOOM);
                                 }
                                 else{
-                                    setGeoMap('0');
-                                    console.log(defaultMap);
+                                    setIsZoom(!isZoom);
                                     setMap(defaultMap)
-                                    // console.log("sss")
-                                    // console.log(test)
-                                    setCenter(DEFAULT_COORDINATION)
+                                    setCenter(DEFAULT_COORDINATION) 
                                     setZoomLevel(1);
-                                    setSpringZoomLevel(1);
                                 }
                             }}
                         />
