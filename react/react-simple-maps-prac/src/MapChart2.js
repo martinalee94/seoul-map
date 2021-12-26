@@ -1,0 +1,90 @@
+import React, { Component } from "react";
+import ReactDOM from "react-dom";
+import {
+  ComposableMap,
+  ZoomableGroup,
+  Geographies,
+  Geography
+} from "react-simple-maps";
+import { Spring, config } from "react-spring";
+import chroma from "chroma-js";
+
+const geoPaths = ["/seoul.json"];
+
+const getRandomInt = (min, max) =>
+  Math.floor(Math.random() * (max - min + 1) + min);
+
+const colorScale = chroma.brewer.Oranges.slice(1);
+const scl = chroma
+  .scale(["#FFF", "#FF5419", "#000"])
+  .mode("lch")
+  .colors(8);
+
+const colors = Array(180)
+  .fill()
+  .map(d => colorScale[getRandomInt(0, colorScale.length - 1)]);
+
+class MapChart2 extends Component {
+  state = {
+    detail: false,
+    paths: geoPaths[0],
+    center: [126, 37],
+    zoom: 60
+  };
+  switchPaths = (a, b, c) => {
+    const { detail } = this.state;
+    this.setState({
+      paths: detail ? geoPaths[0] : geoPaths[0],
+      center: detail ? [0, 0] : [8, 47],
+      zoom: detail ? 1 : 60,
+      detail: !detail
+    });
+  };
+  render() {
+    return (
+      <div>
+        {"Click on the map!"}
+        <Spring
+          from={{ zoom: 1 }}
+          to={{ zoom: this.state.zoom }}
+          config={config.slow}
+        >
+          {styles => (
+            <ComposableMap style={{ width: "100%", height: "auto" }}>
+              <ZoomableGroup center={this.state.center} zoom={styles.zoom}>
+                <Geographies geography={this.state.paths} disableOptimization>
+                  {(geos, proj) =>
+                    geos.map((geo, i) => (
+                      <Geography
+                        key= {geo.rsmKey}
+                        geography={geo}
+                        projection={proj}
+                        onClick={this.switchPaths}
+                        style={{
+                          default: {
+                            fill: colors[i],
+                            outline: "none"
+                          },
+                          hover: {
+                            outline: "none"
+                          },
+                          pressed: {
+                            outline: "none"
+                          }
+                        }}
+                      />
+                    ))
+                  }
+                </Geographies>
+              </ZoomableGroup>
+            </ComposableMap>
+          )}
+        </Spring>
+      </div>
+    );
+  }
+}
+
+// const rootElement = document.getElementById("root");
+// ReactDOM.render(<App />, rootElement);
+export default MapChart2;
