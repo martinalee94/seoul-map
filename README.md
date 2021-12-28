@@ -3,7 +3,7 @@
 ### react-simple-maps를 사용하여 만든 서울 지도입니다.
 
 react-tooltips : hover시 구 이름 및 코드 정보 확인 가능 <br>
-react-spring : 애니메이션을 적용해, 특정 구를 클릭시 해당 구의 지도가 zoom-in <br>
+react-spring : 애니메이션을 적용해, 특정 구를 클릭시 해당 구의 지도가 zoom-in(현재 관악구만 적용되어있음) <br>
 서울 및 관악구 지도 정보는 topojson을 활용
 
 
