@@ -7,7 +7,7 @@ react-spring : 애니메이션을 적용해, 특정 구를 클릭시 해당 구�
 서울 및 관악구 지도 정보는 topojson을 활용
 
 
-https://emptysurae.vercel.app/
+Check it out! 👉 https://emptysurae.vercel.app/
 
 <img src="https://user-images.githubusercontent.com/39133877/147521141-0cbfe6f1-6c10-44f2-801c-db60e7d2d322.png" width="500px" />
 
