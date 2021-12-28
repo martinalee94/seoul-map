@@ -15,6 +15,7 @@ https://emptysurae.vercel.app/
 |    사용한 기술 스택   | 
 |:------------|
 | react-simple-maps  | 
+| react-tooltips  | 
 | react-spring | 
 | topojson | 
 | d3-geo | 
